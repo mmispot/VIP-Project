@@ -2,6 +2,9 @@
 using UnityEditor;
 using System.IO;
 using Unity.Scripting.LifecycleManagement;
+using UnityEditor.SceneManagement;
+using UnityEditorInternal;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 [CustomEditor(typeof(Readme))]
