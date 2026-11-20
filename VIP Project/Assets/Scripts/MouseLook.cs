@@ -3,9 +3,17 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class MouseLook : MonoBehaviour
 {
+	[Header("Camera")]
     public CinemachineCamera playerCamera;
+	[Header("ActionSet")]
     public InputAction look;
-	public float mouseSensitivity;
+	[Header("Mouse Settings")]
+	public float mouseSensitivity = 1;
+	public float mouseLookUpLimit = 0;
+	public float mouseLookDownLimit = 180;
+
+	private float xRotation = 0;
+	private float yRotation = 0;
 	private void Start()
 	{
 		Cursor.lockState = CursorLockMode.Locked;
@@ -23,7 +31,9 @@ public class MouseLook : MonoBehaviour
 		Vector2 _lookInput = look.ReadValue<Vector2>();
 		float _mouseX = _lookInput.x * mouseSensitivity;
 		float _mouseY = _lookInput.y * mouseSensitivity;
-		Vector3 _rotate = new Vector3(-_mouseY, _mouseX,0);
-		playerCamera.gameObject.transform.eulerAngles += _rotate;
+		xRotation -= _mouseY;
+		yRotation += _mouseX;
+		xRotation = Mathf.Clamp(xRotation, mouseLookUpLimit,mouseLookDownLimit);
+		playerCamera.gameObject.transform.rotation = Quaternion.Euler(xRotation,yRotation,0);
 	}
 }

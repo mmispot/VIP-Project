@@ -810,6 +810,8 @@ MonoBehaviour:
     m_Flags: 0
     m_Priority: 0
   mouseSensitivity: 1
+  mouseLookUpLimit: -90
+  mouseLookDownLimit: 90
 --- !u!1 &600621321
 GameObject:
   m_ObjectHideFlags: 0
