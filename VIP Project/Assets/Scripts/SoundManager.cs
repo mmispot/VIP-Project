@@ -12,8 +12,8 @@ public class SoundManager : MonoBehaviour
 	[SerializeField] private AudioClip gameMusIntro;
 	[SerializeField] private AudioClip gameMusLoop;
 	[Header("Sound Effects")]
-	[SerializeField] private AudioClip jingleSuccess;
-	[SerializeField] private AudioClip jingleSuccessSecret;
+	public AudioClip jingleSuccess;
+	public AudioClip jingleSuccessSecret;
 	/// <summary>
 	/// Singleton check on Awake
 	/// </summary>
