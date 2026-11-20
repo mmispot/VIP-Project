@@ -680,6 +680,7 @@ GameObject:
   m_Component:
   - component: {fileID: 497309636}
   - component: {fileID: 497309635}
+  - component: {fileID: 497309637}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: Untagged
@@ -745,6 +746,70 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &497309637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497309634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e35bfb2a4e88e914bb1c7d87639dd655, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MouseLook
+  playerCamera: {fileID: 497309635}
+  look:
+    m_Name: Look
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: c6123ce8-a526-49a6-97f6-627c04b4a5ab
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 2D Vector
+      m_Id: 0d5fd1b6-80d1-4128-8a32-d0a72116e5db
+      m_Path: 2DVector(mode=2)
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Look
+      m_Flags: 4
+    - m_Name: up
+      m_Id: e511078a-9545-4ce6-b4f7-1404108c4d38
+      m_Path: <Mouse>/delta/up
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Look
+      m_Flags: 8
+    - m_Name: down
+      m_Id: 3fd24328-dd36-490b-9e91-27f96679bc93
+      m_Path: <Mouse>/delta/down
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Look
+      m_Flags: 8
+    - m_Name: left
+      m_Id: 9a60a8ed-474f-40fe-91af-ebfec8926976
+      m_Path: <Mouse>/delta/left
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Look
+      m_Flags: 8
+    - m_Name: right
+      m_Id: 57c71842-78b6-4662-bd4e-dc2f43ac9dc4
+      m_Path: <Mouse>/delta/right
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Look
+      m_Flags: 8
+    m_Flags: 0
+    m_Priority: 0
+  mouseSensitivity: 1
 --- !u!1 &600621321
 GameObject:
   m_ObjectHideFlags: 0
