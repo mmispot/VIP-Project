@@ -1,24 +1,28 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace VIPProject.Player
 {
     /// <summary>
-    /// Widens the Camera's field of view as the player speeds up toward sprint speed.
+    /// Widens the field of view as the player speeds up toward sprint speed.
     /// Driven by actual horizontal speed (not the key press), so it follows the
     /// acceleration curve; a SmoothDamp on top removes any hard edges.
-    /// Put this on the same GameObject as the Camera.
+    /// Put this on the player's CinemachineCamera (a CinemachineBrain overwrites the
+    /// real Camera's lens every frame). Falls back to a plain Camera if there is no vcam.
     /// </summary>
-    [RequireComponent(typeof(Camera))]
+    [DefaultExecutionOrder(-10)]
     public class SprintFov : MonoBehaviour
     {
+        private CinemachineCamera _vcam;
         private Camera _camera;
         private float _baseFov;
+        private float _currentFov;
         private float _fovVelocity;
 
         [SerializeField] private PlayerMovement movement;
 
         [Header("Live sliders (tweak in Play mode)")]
-        [Tooltip("Extra degrees of FOV at full sprint speed. Was effectively 0 before.")]
+        [Tooltip("Extra degrees of FOV at full sprint speed.")]
         [Range(0f, 30f)]
         [SerializeField] private float sprintFovBoost = 14f;
         [Tooltip("Seconds to settle when entering/leaving sprint. Lower = punchier.")]
@@ -30,8 +34,14 @@ namespace VIPProject.Player
 
         private void Awake()
         {
-            _camera = GetComponent<Camera>();
-            _baseFov = _camera.fieldOfView;
+            if (!TryGetComponent(out _vcam) && !TryGetComponent(out _camera))
+            {
+                Debug.LogError("SprintFov: needs a CinemachineCamera or Camera on the same GameObject.", this);
+                enabled = false;
+                return;
+            }
+            _baseFov = _vcam != null ? _vcam.Lens.FieldOfView : _camera.fieldOfView;
+            _currentFov = _baseFov;
         }
 
         private void OnEnable()
@@ -45,7 +55,7 @@ namespace VIPProject.Player
 
         private void OnDisable()
         {
-            if (_camera != null) _camera.fieldOfView = _baseFov;
+            if (_vcam != null || _camera != null) ApplyFov(_baseFov);
         }
 
         private void LateUpdate()
@@ -53,7 +63,22 @@ namespace VIPProject.Player
             // 0 at walk speed or slower, 1 at sprint speed.
             float t = Mathf.InverseLerp(movement.WalkSpeed, movement.SprintSpeed, movement.HorizontalSpeed);
             float target = _baseFov + Mathf.Pow(t, curvePower) * sprintFovBoost;
-            _camera.fieldOfView = Mathf.SmoothDamp(_camera.fieldOfView, target, ref _fovVelocity, smoothTime);
+            _currentFov = Mathf.SmoothDamp(_currentFov, target, ref _fovVelocity, smoothTime);
+            ApplyFov(_currentFov);
+        }
+
+        private void ApplyFov(float fov)
+        {
+            if (_vcam != null)
+            {
+                LensSettings lens = _vcam.Lens;
+                lens.FieldOfView = fov;
+                _vcam.Lens = lens;
+            }
+            else
+            {
+                _camera.fieldOfView = fov;
+            }
         }
     }
 }

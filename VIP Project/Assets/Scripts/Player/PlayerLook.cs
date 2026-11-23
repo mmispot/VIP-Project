@@ -7,6 +7,7 @@ namespace VIPProject.Player
     /// Mouse look. Yaw rotates the Player body, pitch rotates CameraPivot.
     /// A light smoothing pass removes mouse jitter without adding noticeable lag.
     /// </summary>
+    [DefaultExecutionOrder(-10)]
     public class PlayerLook : MonoBehaviour
     {
         private InputAction _look;

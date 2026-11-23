@@ -7,6 +7,7 @@ namespace VIPProject.Player
     /// walked (so steps match speed); amplitude eases in/out with speed so there is
     /// never a sudden camera pop. Also adds a small dip on landing.
     /// </summary>
+    [DefaultExecutionOrder(-10)]
     public class HeadBob : MonoBehaviour
     {
         private Vector3 _restLocalPosition;

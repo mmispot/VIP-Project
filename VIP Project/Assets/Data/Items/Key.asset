@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf324e1ba7fd31546aae60efb1099bfe, type: 3}
+  m_Name: Key
+  m_EditorClassIdentifier: Assembly-CSharp::VIPProject.Items.ItemData
+  itemId: key_door_01
+  displayName: Brass Key
+  description: Opens the door in the first room.
+  icon: {fileID: 0}
