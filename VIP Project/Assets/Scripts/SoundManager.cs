@@ -14,6 +14,7 @@ public class SoundManager : MonoBehaviour
 	[Header("Sound Effects")]
 	public AudioClip jingleSuccess;
 	public AudioClip jingleSuccessSecret;
+	public AudioClip jingleFail;
 	/// <summary>
 	/// Singleton check on Awake
 	/// </summary>

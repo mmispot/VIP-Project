@@ -54,6 +54,7 @@ MonoBehaviour:
   gameMusLoop: {fileID: 8300000, guid: 31189c7e4c128434b8baa300608f5b0a, type: 3}
   jingleSuccess: {fileID: 8300000, guid: e888b3268930cac4195b3aa8b3c0271f, type: 3}
   jingleSuccessSecret: {fileID: 8300000, guid: b1b12b1a30bbc624380c914bd89c1a78, type: 3}
+  jingleFail: {fileID: 8300000, guid: 630bf2e7556ae404f889c6b389424691, type: 3}
 --- !u!1 &4983521112258569306
 GameObject:
   m_ObjectHideFlags: 0
