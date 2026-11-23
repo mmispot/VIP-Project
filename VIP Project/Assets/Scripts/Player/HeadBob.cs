@@ -35,8 +35,9 @@ namespace VIPProject.Player
         [SerializeField] private float stepsPerMetre = 1.0f;
         [Tooltip("How quickly the bob fades in and out.")]
         [SerializeField] private float blendSpeed = 5f;
-        [Tooltip("Bob grows slightly when sprinting.")]
-        [SerializeField] private float sprintAmplitudeMultiplier = 1.4f;
+        [Tooltip("Bob strength at full sprint relative to walking. Below 1 = calmer bob while sprinting (the FOV kick sells the speed instead).")]
+        [Range(0f, 1.5f)]
+        [SerializeField] private float sprintAmplitudeMultiplier = 0.7f;
 
         [Header("Landing")]
         [SerializeField] private float landDipPerMetreSecond = 0.012f;

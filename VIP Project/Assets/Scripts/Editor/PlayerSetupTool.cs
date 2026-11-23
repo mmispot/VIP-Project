@@ -31,7 +31,7 @@ namespace VIPProject.EditorTools
             }
 
             BuildLevel();
-            BuildPlayer(actions);
+            BuildPlayer(actions, new Vector3(0f, 0.1f, -4f));
 
             // The default scene camera would fight with the player's camera.
             var oldCam = GameObject.Find("Main Camera");
@@ -42,17 +42,54 @@ namespace VIPProject.EditorTools
             Debug.Log("VIP: Player + test level built. Save the scene, then press Play.");
         }
 
+        /// <summary>
+        /// Adds only the player (movement, look, head bob, sprint FOV) to the open scene.
+        /// Spawns at the selected object's position, or the world origin if nothing is selected.
+        /// Never touches existing level geometry, and never replaces an existing Player.
+        /// </summary>
+        [MenuItem("Tools/VIP/Add Player (Movement Only)")]
+        public static void AddPlayerOnly()
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            var existing = GameObject.Find(PlayerName);
+            if (existing != null)
+            {
+                Selection.activeGameObject = existing;
+                Debug.LogWarning("VIP: This scene already has a 'Player'. Delete or rename it first, or use Build Player + Test Level to rebuild.");
+                return;
+            }
+
+            var actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>("Assets/InputSystem_Actions.inputactions");
+            if (actions == null)
+            {
+                Debug.LogError("Assets/InputSystem_Actions.inputactions not found.");
+                return;
+            }
+
+            Vector3 spawn = Selection.activeTransform != null ? Selection.activeTransform.position : Vector3.zero;
+            GameObject player = BuildPlayer(actions, spawn);
+
+            // A second camera/AudioListener would fight with the player's.
+            var oldCam = GameObject.Find("Main Camera");
+            if (oldCam != null && oldCam.transform.parent == null)
+                Undo.DestroyObjectImmediate(oldCam);
+
+            Selection.activeGameObject = player;
+            EditorSceneManager.MarkSceneDirty(scene);
+            Debug.Log("VIP: Player added. Make sure the scene has a floor with a collider, save, then press Play.");
+        }
+
         private static void RemoveExisting(string name)
         {
             var existing = GameObject.Find(name);
             if (existing != null) Undo.DestroyObjectImmediate(existing);
         }
 
-        private static void BuildPlayer(InputActionAsset actions)
+        private static GameObject BuildPlayer(InputActionAsset actions, Vector3 position)
         {
             var player = new GameObject(PlayerName);
             Undo.RegisterCreatedObjectUndo(player, "Create Player");
-            player.transform.position = new Vector3(0f, 0.1f, -4f);
+            player.transform.position = position;
 
             var cc = player.AddComponent<CharacterController>();
             cc.height = 1.8f;
@@ -75,11 +112,14 @@ namespace VIPProject.EditorTools
             var movement = player.AddComponent<Player.PlayerMovement>();
             var look = player.AddComponent<Player.PlayerLook>();
             var bob = camGo.AddComponent<Player.HeadBob>();
+            var fov = camGo.AddComponent<Player.SprintFov>();
 
             SetRef(movement, "inputActions", actions);
             SetRef(look, "inputActions", actions);
             SetRef(look, "cameraPivot", pivot.transform);
             SetRef(bob, "movement", movement);
+            SetRef(fov, "movement", movement);
+            return player;
         }
 
         private static void SetRef(Object target, string field, Object value)
