@@ -418,6 +418,7 @@ namespace VIPProject.EditorTools
             SetRef(interactor, "inputActions", actions);
             SetRef(interactor, "cameraPivot", pivot.transform);
             SetRef(movement, "inputActions", actions);
+            SetRef(movement, "cameraPivot", pivot.transform);
             SetRef(look, "inputActions", actions);
             SetRef(look, "cameraPivot", pivot.transform);
             SetRef(bob, "movement", movement);
