@@ -16,6 +16,8 @@ namespace VIPProject.Player
         private float _landOffset;      // current landing dip (negative = down)
         private float _landVelocity;
         private float _landTarget;
+        private Vector3 _bumpOffset;    // current bump kick in local space
+        private Vector3 _bumpVelocity;
 
         [SerializeField] private PlayerMovement movement;
 
@@ -45,6 +47,12 @@ namespace VIPProject.Player
         [SerializeField] private float maxLandDip = 0.12f;
         [SerializeField] private float landRecoverTime = 0.12f;
 
+        [Header("Bump (walking into walls)")]
+        [SerializeField] private float bumpKickPerMetreSecond = 0.02f;
+        [Tooltip("Largest camera kick in metres, however hard the hit.")]
+        [SerializeField] private float maxBumpKick = 0.08f;
+        [SerializeField] private float bumpRecoverTime = 0.15f;
+
         private void Awake()
         {
             _restLocalPosition = transform.localPosition;
@@ -54,11 +62,18 @@ namespace VIPProject.Player
         {
             if (movement == null) { enabled = false; return; }
             movement.Landed += OnLanded;
+            movement.Bumped += OnBumped;
         }
 
         private void OnDisable()
         {
-            if (movement != null) movement.Landed -= OnLanded;
+            if (movement != null)
+            {
+                movement.Landed -= OnLanded;
+                movement.Bumped -= OnBumped;
+            }
+            _bumpOffset = Vector3.zero;
+            _bumpVelocity = Vector3.zero;
             transform.localPosition = _restLocalPosition;
         }
 
@@ -88,10 +103,27 @@ namespace VIPProject.Player
             _landOffset = Mathf.SmoothDamp(_landOffset, _landTarget, ref _landVelocity, landRecoverTime);
             _landTarget = Mathf.MoveTowards(_landTarget, 0f, dt / landRecoverTime * maxLandDip);
 
-            transform.localPosition = _restLocalPosition + new Vector3(
+            _bumpOffset = Vector3.SmoothDamp(_bumpOffset, Vector3.zero, ref _bumpVelocity, bumpRecoverTime);
+
+            transform.localPosition = _restLocalPosition + _bumpOffset + new Vector3(
                 x * horizontalAmount * _amplitude * bobIntensity,
                 y * verticalAmount * _amplitude * bobIntensity + _landOffset,
                 0f);
+        }
+
+        private void OnBumped(float impactSpeed, Vector3 normal, Collider other)
+        {
+            float magnitude = Mathf.Min(maxBumpKick, impactSpeed * bumpKickPerMetreSecond);
+
+            // The normal points away from the wall, so kicking along it pushes the camera back off
+            // the surface; a slight dip sells the jolt. Convert to the pivot's local space so the
+            // kick stays correct whatever the player's yaw and pitch.
+            Transform parent = transform.parent;
+            Vector3 local = parent != null ? parent.InverseTransformDirection(normal) : normal;
+            Vector3 kick = local * magnitude + Vector3.down * (magnitude * 0.5f);
+
+            _bumpOffset = Vector3.ClampMagnitude(_bumpOffset + kick, maxBumpKick);
+            _bumpVelocity = Vector3.zero;
         }
 
         private void OnLanded(float impactSpeed)

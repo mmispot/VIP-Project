@@ -27,6 +27,7 @@ namespace VIPProject.Player
         private float _crouchVelocity;
         private float _standHeight;
         private float _standPivotY;
+        private float _lastBumpTime = float.NegativeInfinity;
 
         [Header("Input (assign InputSystem_Actions)")]
         [SerializeField] private InputActionAsset inputActions;
@@ -55,6 +56,15 @@ namespace VIPProject.Player
         [Tooltip("What blocks standing up (ceilings, tables). Triggers are ignored.")]
         [SerializeField] private LayerMask headroomMask = ~0;
 
+        [Header("Bump (walking into walls / props)")]
+        [Tooltip("Minimum speed (m/s) into a surface before it counts as a bump. Gentle brushing and sliding along walls stay below this.")]
+        [SerializeField] private float minBumpSpeed = 0.6f;
+        [Tooltip("Seconds before another bump can fire, so standing against a wall does not retrigger.")]
+        [SerializeField] private float bumpCooldown = 0.4f;
+        [Range(0f, 1f)]
+        [Tooltip("Fraction of the impact speed bounced back off the surface.")]
+        [SerializeField] private float bumpRebound = 0.25f;
+
         [Header("Jump")]
         [SerializeField] private float jumpHeight = 0.8f;
         [SerializeField] private float gravity = -9.81f;
@@ -74,6 +84,12 @@ namespace VIPProject.Player
         /// <summary>Raised on touchdown with the downward speed (m/s, positive) at impact.</summary>
         public event Action<float> Landed;
         public event Action Jumped;
+
+        /// <summary>
+        /// Raised when the player walks into a wall or prop. Args: impact speed (m/s, positive),
+        /// surface normal (horizontal, pointing away from the surface), and the collider hit.
+        /// </summary>
+        public event Action<float, Vector3, Collider> Bumped;
 
         private void Awake()
         {
@@ -160,6 +176,24 @@ namespace VIPProject.Player
                 _verticalVelocity = 0f;
 
             _wasGrounded = grounded;
+        }
+
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            // Floors and ceilings are not bumps.
+            if (Mathf.Abs(hit.normal.y) > 0.5f) return;
+            if (Time.time - _lastBumpTime < bumpCooldown) return;
+
+            Vector3 normal = new Vector3(hit.normal.x, 0f, hit.normal.z).normalized;
+            // Only the part of our velocity heading into the surface counts, so a shallow
+            // graze along a wall is weak and a head-on hit is strong.
+            float impact = -Vector3.Dot(_horizontalVelocity, normal);
+            if (impact < minBumpSpeed) return;
+
+            _lastBumpTime = Time.time;
+            // Cancel the velocity into the wall and bounce a little of it back.
+            _horizontalVelocity += normal * (impact * (1f + bumpRebound));
+            Bumped?.Invoke(impact, normal, hit.collider);
         }
 
         public void SetLocked(bool locked) => _locked = locked;
